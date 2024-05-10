@@ -75,15 +75,15 @@ class CreateCertificatePlugin {
         const customCertificate = this.getCustomCertificateDetails() || {};
 
         const credentials = this.serverless.providers.aws.getCredentials();
-        this.route53 = new this.serverless.providers.aws.sdk.Route53(credentials);
         this.region = customCertificate.region || 'us-east-1';
+        const config = Object.assign({}, credentials, { region: this.region });
+        this.route53 = new this.serverless.providers.aws.sdk.Route53(config);
         this.domain = customCertificate.certificateName;
         //hostedZoneId is mapped for backwards compatibility
         this.hostedZoneIds = customCertificate.hostedZoneIds ? customCertificate.hostedZoneIds : (customCertificate.hostedZoneId) ? [].concat(customCertificate.hostedZoneId) : [];
         //hostedZoneName is mapped for backwards compatibility
         this.hostedZoneNames = customCertificate.hostedZoneNames ? customCertificate.hostedZoneNames : (customCertificate.hostedZoneName) ? [].concat(customCertificate.hostedZoneName) : [];
-        const acmCredentials = Object.assign({}, credentials, { region: this.region });
-        this.acm = new this.serverless.providers.aws.sdk.ACM(acmCredentials);
+        this.acm = new this.serverless.providers.aws.sdk.ACM(config);
         this.idempotencyToken = customCertificate.idempotencyToken;
         this.writeCertInfoToFile = customCertificate.writeCertInfoToFile || false;
         this.rewriteRecords = customCertificate.rewriteRecords || false;
